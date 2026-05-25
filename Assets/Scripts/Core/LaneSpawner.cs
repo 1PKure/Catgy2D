@@ -4,6 +4,7 @@ public class LaneSpawner : MonoBehaviour
 {
     [Header("Car Settings")]
     [SerializeField] private GameObject carPrefab;
+    [SerializeField] private Sprite carSprite;
     [SerializeField] private Transform spawnPoint;
 
     [Header("Lane Settings")]
@@ -43,7 +44,7 @@ public class LaneSpawner : MonoBehaviour
 
         if (carController != null)
         {
-            carController.Initialize(carSpeed, direction, destroyPositionX);
+            carController.Initialize(carSpeed, direction, destroyPositionX, carSprite);
         }
     }
 }
