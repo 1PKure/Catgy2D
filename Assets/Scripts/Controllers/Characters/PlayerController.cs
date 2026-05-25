@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,17 +6,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float laneDistance = 2f;
     [SerializeField] private int minLane = 0;
     [SerializeField] private int maxLane = 4;
-    [SerializeField] private float moveAnimationDuration = 0.15f;
 
     [Header("References")]
     [SerializeField] private Transform startPoint;
     [SerializeField] private GameController gameController;
     [SerializeField] private AudioManager audioManager;
-    [SerializeField] private Animator animator;
+    [SerializeField] private PlayerView playerView;
 
-    private int currentLane;
+    private PlayerModel playerModel;
     private bool canMove = true;
-    private Coroutine moveAnimationCoroutine;
+
+    private void Awake()
+    {
+        playerModel = new PlayerModel(minLane, maxLane);
+    }
 
     private void Start()
     {
@@ -38,27 +40,26 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            MoveToLane(currentLane + 1, 1);
+            MoveToLane(playerModel.CurrentLane + 1, 1);
             return;
         }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            MoveToLane(currentLane - 1, -1);
+            MoveToLane(playerModel.CurrentLane - 1, -1);
         }
     }
-
     private void MoveToLane(int targetLane, int moveDirection)
     {
-        if (targetLane < minLane || targetLane > maxLane)
+        if (!playerModel.CanMoveToLane(targetLane))
         {
             return;
         }
 
-        currentLane = targetLane;
+        playerModel.SetCurrentLane(targetLane);
 
         Vector3 newPosition = transform.position;
-        newPosition.y = startPoint.position.y + currentLane * laneDistance;
+        newPosition.y = startPoint.position.y + playerModel.CurrentLane * laneDistance;
 
         transform.position = newPosition;
 
@@ -72,34 +73,15 @@ public class PlayerController : MonoBehaviour
             audioManager.PlayMoveSound();
         }
 
-        if (moveAnimationCoroutine != null)
+        if (playerView != null)
         {
-            StopCoroutine(moveAnimationCoroutine);
-        }
-
-        moveAnimationCoroutine = StartCoroutine(PlayMoveAnimationBriefly(moveDirection));
-    }
-
-    private IEnumerator PlayMoveAnimationBriefly(int moveDirection)
-    {
-        SetMoveDirection(moveDirection);
-
-        yield return new WaitForSeconds(moveAnimationDuration);
-
-        SetMoveDirection(0);
-    }
-
-    private void SetMoveDirection(int moveDirection)
-    {
-        if (animator != null)
-        {
-            animator.SetInteger("MoveDirection", moveDirection);
+            playerView.PlayMoveAnimation(moveDirection);
         }
     }
 
     public void ResetPlayer()
     {
-        currentLane = minLane;
+        playerModel.Reset();
 
         if (startPoint != null)
         {
@@ -107,13 +89,21 @@ public class PlayerController : MonoBehaviour
         }
 
         canMove = true;
-        SetMoveDirection(0);
+
+        if (playerView != null)
+        {
+            playerView.PlayIdleAnimation();
+        }
     }
 
     public void DisableMovement()
     {
         canMove = false;
-        SetMoveDirection(0);
+
+        if (playerView != null)
+        {
+            playerView.PlayIdleAnimation();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

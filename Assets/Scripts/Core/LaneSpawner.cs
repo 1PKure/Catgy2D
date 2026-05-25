@@ -4,17 +4,17 @@ public class LaneSpawner : MonoBehaviour
 {
     [Header("Car Settings")]
     [SerializeField] private GameObject carPrefab;
-    [SerializeField] private Sprite carSprite;
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Lane Settings")]
-    [SerializeField] private float carSpeed = 4f;
-    [SerializeField] private float spawnInterval = 2f;
-    [SerializeField] private int direction = 1;
-    [SerializeField] private float destroyPositionX = 10f;
+    [Header("Lane Model")]
+    [SerializeField] private LaneData laneData;
 
     private float spawnTimer;
-
+    private void Awake()
+    {
+        SpawnCar();
+        spawnTimer = 0f;
+    }
     private void Update()
     {
         UpdateSpawnTimer();
@@ -22,9 +22,14 @@ public class LaneSpawner : MonoBehaviour
 
     private void UpdateSpawnTimer()
     {
+        if (laneData == null)
+        {
+            return;
+        }
+
         spawnTimer += Time.deltaTime;
 
-        if (spawnTimer >= spawnInterval)
+        if (spawnTimer >= laneData.SpawnInterval)
         {
             SpawnCar();
             spawnTimer = 0f;
@@ -33,7 +38,7 @@ public class LaneSpawner : MonoBehaviour
 
     private void SpawnCar()
     {
-        if (carPrefab == null || spawnPoint == null)
+        if (carPrefab == null || spawnPoint == null || laneData == null)
         {
             return;
         }
@@ -44,7 +49,7 @@ public class LaneSpawner : MonoBehaviour
 
         if (carController != null)
         {
-            carController.Initialize(carSpeed, direction, destroyPositionX, carSprite);
+            carController.Initialize(laneData);
         }
     }
 }

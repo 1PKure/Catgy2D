@@ -3,20 +3,32 @@ using UnityEngine;
 public class CarController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private CarView carView;
 
     private float speed;
     private int direction;
     private float destroyPositionX;
 
-    public void Initialize(float carSpeed, int moveDirection, float destroyX, Sprite carSprite)
+    private void Awake()
     {
-        speed = carSpeed;
-        direction = moveDirection;
-        destroyPositionX = destroyX;
+        if (carView != null)
+        {
+            carView.ApplySortingOrder();
+        }
+    }
 
-        SetSprite(carSprite);
-        UpdateCarRotation();
+    public void Initialize(LaneData laneData)
+    {
+        speed = laneData.CarSpeed;
+        direction = laneData.Direction;
+        destroyPositionX = laneData.DestroyPositionX;
+
+        if (carView != null)
+        {
+            carView.SetSprite(laneData.CarSprite);
+            carView.SetDirection(direction);
+            carView.ApplySortingOrder();
+        }
     }
 
     private void Update()
@@ -40,26 +52,6 @@ public class CarController : MonoBehaviour
         if (direction < 0 && transform.position.x <= destroyPositionX)
         {
             Destroy(gameObject);
-        }
-    }
-
-    private void SetSprite(Sprite carSprite)
-    {
-        if (spriteRenderer != null && carSprite != null)
-        {
-            spriteRenderer.sprite = carSprite;
-        }
-    }
-
-    private void UpdateCarRotation()
-    {
-        if (direction > 0)
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, -90f);
-        }
-        else
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, 90f);
         }
     }
 }

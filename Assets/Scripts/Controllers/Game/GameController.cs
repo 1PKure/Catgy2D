@@ -12,11 +12,18 @@ public class GameController : MonoBehaviour
     [SerializeField] private string winSceneName = "WinScene";
     [SerializeField] private float winDelay = 0.6f;
 
-    private bool gameFinished;
+    private GameState currentState = GameState.Playing;
+
+    public GameState CurrentState => currentState;
+
+    private void Start()
+    {
+        SetState(GameState.Playing);
+    }
 
     public void ResetPlayer()
     {
-        if (gameFinished)
+        if (currentState != GameState.Playing)
         {
             return;
         }
@@ -29,12 +36,12 @@ public class GameController : MonoBehaviour
 
     public void WinGame()
     {
-        if (gameFinished)
+        if (currentState == GameState.Finished)
         {
             return;
         }
 
-        gameFinished = true;
+        SetState(GameState.Finished);
 
         if (player != null)
         {
@@ -47,6 +54,11 @@ public class GameController : MonoBehaviour
         }
 
         StartCoroutine(LoadWinSceneAfterDelay());
+    }
+
+    public void SetState(GameState newState)
+    {
+        currentState = newState;
     }
 
     private IEnumerator LoadWinSceneAfterDelay()
