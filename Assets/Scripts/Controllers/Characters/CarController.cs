@@ -5,9 +5,7 @@ public class CarController : MonoBehaviour
     [Header("References")]
     [SerializeField] private CarView carView;
 
-    private float speed;
-    private int direction;
-    private float destroyPositionX;
+    private CarMovementLogic movementLogic;
 
     private void Awake()
     {
@@ -19,37 +17,44 @@ public class CarController : MonoBehaviour
 
     public void Initialize(LaneData laneData)
     {
-        speed = laneData.CarSpeed;
-        direction = laneData.Direction;
-        destroyPositionX = laneData.DestroyPositionX;
+        if (laneData == null)
+        {
+            return;
+        }
+
+        movementLogic = new CarMovementLogic(
+            laneData.CarSpeed,
+            laneData.Direction,
+            laneData.DestroyPositionX
+        );
 
         if (carView != null)
         {
             carView.SetSprite(laneData.CarSprite);
-            carView.SetDirection(direction);
+            carView.SetDirection(laneData.Direction);
             carView.ApplySortingOrder();
         }
     }
 
     private void Update()
     {
+        if (movementLogic == null)
+        {
+            return;
+        }
+
         Move();
         CheckDestroyCondition();
     }
 
     private void Move()
     {
-        transform.position += Vector3.right * direction * speed * Time.deltaTime;
+        transform.position = movementLogic.GetNextPosition(transform.position, Time.deltaTime);
     }
 
     private void CheckDestroyCondition()
     {
-        if (direction > 0 && transform.position.x >= destroyPositionX)
-        {
-            Destroy(gameObject);
-        }
-
-        if (direction < 0 && transform.position.x <= destroyPositionX)
+        if (movementLogic.ShouldDestroy(transform.position))
         {
             Destroy(gameObject);
         }

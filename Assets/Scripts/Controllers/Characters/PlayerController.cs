@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerView playerView;
 
     private PlayerModel playerModel;
+    private PlayerMovementLogic movementLogic;
+
     private bool canMove = true;
 
     private void Awake()
@@ -23,6 +25,11 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        if (startPoint != null)
+        {
+            movementLogic = new PlayerMovementLogic(laneDistance, startPoint.position);
+        }
+
         ResetPlayer();
     }
 
@@ -49,19 +56,18 @@ public class PlayerController : MonoBehaviour
             MoveToLane(playerModel.CurrentLane - 1, -1);
         }
     }
+
     private void MoveToLane(int targetLane, int moveDirection)
     {
-        if (!playerModel.CanMoveToLane(targetLane))
+        if (!playerModel.TrySetCurrentLane(targetLane))
         {
             return;
         }
 
-        playerModel.SetCurrentLane(targetLane);
-
-        Vector3 newPosition = transform.position;
-        newPosition.y = startPoint.position.y + playerModel.CurrentLane * laneDistance;
-
-        transform.position = newPosition;
+        if (movementLogic != null)
+        {
+            transform.position = movementLogic.GetPositionForLane(playerModel.CurrentLane);
+        }
 
         PlayMoveFeedback(moveDirection);
     }
@@ -83,7 +89,11 @@ public class PlayerController : MonoBehaviour
     {
         playerModel.Reset();
 
-        if (startPoint != null)
+        if (movementLogic != null)
+        {
+            transform.position = movementLogic.GetPositionForLane(playerModel.CurrentLane);
+        }
+        else if (startPoint != null)
         {
             transform.position = startPoint.position;
         }
@@ -119,6 +129,8 @@ public class PlayerController : MonoBehaviour
             {
                 gameController.ResetPlayer();
             }
+
+            return;
         }
 
         if (other.CompareTag("Goal"))

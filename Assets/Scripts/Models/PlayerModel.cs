@@ -17,9 +17,15 @@ public class PlayerModel
         return targetLane >= MinLane && targetLane <= MaxLane;
     }
 
-    public void SetCurrentLane(int lane)
+    public bool TrySetCurrentLane(int targetLane)
     {
-        CurrentLane = lane;
+        if (!CanMoveToLane(targetLane))
+        {
+            return false;
+        }
+
+        CurrentLane = targetLane;
+        return true;
     }
 
     public void Reset()

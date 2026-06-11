@@ -9,12 +9,18 @@ public class LaneSpawner : MonoBehaviour
     [Header("Lane Model")]
     [SerializeField] private LaneData laneData;
 
-    private float spawnTimer;
+    private SpawnTimer spawnTimer;
+
     private void Awake()
     {
+        if (laneData != null)
+        {
+            spawnTimer = new SpawnTimer(laneData.SpawnInterval);
+        }
+
         SpawnCar();
-        spawnTimer = 0f;
     }
+
     private void Update()
     {
         UpdateSpawnTimer();
@@ -22,17 +28,14 @@ public class LaneSpawner : MonoBehaviour
 
     private void UpdateSpawnTimer()
     {
-        if (laneData == null)
+        if (spawnTimer == null)
         {
             return;
         }
 
-        spawnTimer += Time.deltaTime;
-
-        if (spawnTimer >= laneData.SpawnInterval)
+        if (spawnTimer.Tick(Time.deltaTime))
         {
             SpawnCar();
-            spawnTimer = 0f;
         }
     }
 

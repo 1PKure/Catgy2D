@@ -34,6 +34,11 @@ public class PauseController : MonoBehaviour
 
     public void PauseGame()
     {
+        if (gameController != null && gameController.CurrentState == GameState.Finished)
+        {
+            return;
+        }
+
         isPaused = true;
         Time.timeScale = 0f;
 
@@ -50,6 +55,11 @@ public class PauseController : MonoBehaviour
 
     public void ResumeGame()
     {
+        if (gameController != null && gameController.CurrentState == GameState.Finished)
+        {
+            return;
+        }
+
         isPaused = false;
         Time.timeScale = 1f;
 

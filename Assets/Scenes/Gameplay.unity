@@ -2822,7 +2822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pausePanel: {fileID: 121304154}
-  gameController: {fileID: 0}
+  gameController: {fileID: 80680177}
 --- !u!4 &1692317401
 Transform:
   m_ObjectHideFlags: 0
