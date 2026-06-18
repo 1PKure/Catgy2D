@@ -141,4 +141,12 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+#if UNITY_EDITOR
+    public void SetTestReferences(Transform testStartPoint)
+    {
+        startPoint = testStartPoint;
+        movementLogic = new PlayerMovementLogic(laneDistance, startPoint.position);
+    }
+#endif
 }

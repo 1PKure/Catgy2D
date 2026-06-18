@@ -59,4 +59,17 @@ public class CarController : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    #if UNITY_EDITOR
+    public void TickForTests(float deltaTime)
+    {
+        if (movementLogic == null)
+        {
+            return;
+        }
+
+        transform.position = movementLogic.GetNextPosition(transform.position, deltaTime);
+    }
+#endif
+
 }

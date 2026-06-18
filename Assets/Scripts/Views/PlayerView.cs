@@ -16,6 +16,10 @@ public class PlayerView : MonoBehaviour
 
     private Coroutine currentAnimationCoroutine;
 
+#if UNITY_EDITOR
+    public string LastPlayedState { get; private set; }
+#endif
+
     public void PlayMoveAnimation(int direction)
     {
         if (currentAnimationCoroutine != null)
@@ -60,6 +64,10 @@ public class PlayerView : MonoBehaviour
 
     private void PlayState(string stateName)
     {
+#if UNITY_EDITOR
+        LastPlayedState = stateName;
+#endif
+
         if (animator == null)
         {
             return;
