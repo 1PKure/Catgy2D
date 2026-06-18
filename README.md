@@ -1,6 +1,6 @@
-# Frogger 2D - TP2
+# Frogger 2D
 
-Unity 2D project developed for TP2.  
+Unity 2D project developed for a college project.
 The game is based on the classic Frogger concept: the player must cross lanes with moving cars and reach the goal without getting hit.
 
 ## Gameplay
