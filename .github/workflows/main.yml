@@ -5,12 +5,50 @@ on:
   pull_request:
 
 jobs:
-  buildForAllSupportedPlatforms:
-    name: Build for WebGL
+  tests:
+    name: Run EditMode and PlayMode tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Cache Unity Library for tests
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Tests
+          restore-keys: Library-
+
+      - name: Run Unity tests
+        id: unity-tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: All
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-results
+          path: artifacts
+          if-no-files-found: warn
+
+  buildForAllSupportedPlatforms:
+    name: Build for WebGL
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
@@ -24,13 +62,15 @@ jobs:
           docker image prune --all --force
           df -h
 
-      - uses: actions/cache@v4
+      - name: Cache Unity Library
+        uses: actions/cache@v4
         with:
           path: Library
           key: Library-WebGL
           restore-keys: Library-
 
-      - uses: game-ci/unity-builder@v4
+      - name: Build WebGL
+        uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -38,8 +78,9 @@ jobs:
         with:
           targetPlatform: WebGL
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload WebGL build
+        uses: actions/upload-artifact@v4
         with:
           name: Build-WebGL
           path: build/WebGL
-          
+          if-no-files-found: error
